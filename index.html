@@ -127,19 +127,26 @@
           container.appendChild(back);
           return;
         }
+
         const balloon = document.createElement('div');
         balloon.className = 'ayah-balloon';
         balloon.innerText = `${ayat[index]} (${index + 1})`;
-        balloon.onclick = () => {
-          popSound.play();
-          balloon.classList.add('pop');
-          setTimeout(() => {
-            container.innerHTML = '';
-            index++;
-            showNextAyah();
-          }, 300);
-        };
+        balloon.style.pointerEvents = 'none';
+
         container.appendChild(balloon);
+
+        setTimeout(() => {
+          balloon.style.pointerEvents = 'auto';
+          balloon.onclick = () => {
+            popSound.play();
+            balloon.classList.add('pop');
+            setTimeout(() => {
+              container.innerHTML = '';
+              index++;
+              showNextAyah(); // removed the 2 second delay here
+            }, 300);
+          };
+        }, 2000);
       }
 
       showNextAyah();
