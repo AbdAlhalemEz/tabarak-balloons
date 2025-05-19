@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>جزء تبارك للأطفال</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png">
+  <meta name="theme-color" content="#a0d8ef">
   <style>
     body {
       background: linear-gradient(to top right, #a0d8ef, #fceabb);
@@ -79,10 +81,23 @@
   <audio id="doneSound" src="sounds/done.mp3"></audio>
 
   <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service worker registered'))
+        .catch(err => console.error('Service worker registration failed:', err));
+    }
+
     const container = document.getElementById('container');
     const popSound = document.getElementById('popSound');
     const doneSound = document.getElementById('doneSound');
     let surahs = {};
+    let ayahMode = false;
+
+    window.onbeforeunload = function () {
+      if (ayahMode) {
+        return 'هل أنت متأكد أنك تريد الخروج؟ لم تنته بعد من السورة.';
+      }
+    };
 
     async function loadSurahs() {
       const res = await fetch('tabarak.txt');
@@ -99,6 +114,7 @@
     }
 
     function showSurahBalloons() {
+      ayahMode = false;
       document.querySelector('h1').innerText = '🎈 اختر سورة من جزء تبارك 🎈';
       container.innerHTML = '';
       for (let name in surahs) {
@@ -111,6 +127,7 @@
     }
 
     function showSurah(name) {
+      ayahMode = true;
       container.innerHTML = '';
       document.querySelector('h1').innerText = `🎈 سورة ${name} - فرقعة الآيات 🎈`;
       const ayat = surahs[name];
@@ -118,6 +135,7 @@
 
       function showNextAyah() {
         if (index >= ayat.length) {
+          ayahMode = false;
           doneSound.play();
           container.innerHTML = "<h3>🎉 انتهيت من السورة، أحسنت! 🎉</h3>";
           const back = document.createElement('div');
@@ -143,7 +161,7 @@
             setTimeout(() => {
               container.innerHTML = '';
               index++;
-              showNextAyah(); // removed the 2 second delay here
+              showNextAyah();
             }, 300);
           };
         }, 2000);
