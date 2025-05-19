@@ -1,0 +1,16 @@
+
+{
+  "name": "جزء تبارك للأطفال",
+  "short_name": "تبارك",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#a0d8ef",
+  "theme_color": "#a0d8ef",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

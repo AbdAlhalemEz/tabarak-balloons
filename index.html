@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جزء تبارك للأطفال</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      background: linear-gradient(to top right, #a0d8ef, #fceabb);
+      font-family: 'Amiri', serif;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #444;
+    }
+    .balloon {
+      display: inline-block;
+      background: #f99;
+      color: #fff;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.3s;
+      animation: float 4s ease-in-out infinite;
+    }
+    .balloon:hover {
+      transform: scale(1.1);
+    }
+    .ayah-balloon {
+      display: inline-block;
+      background: #ff9999;
+      color: #fff;
+      padding: 20px;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+      animation: float 6s ease-in-out infinite;
+      transition: transform 0.3s, opacity 0.3s;
+      cursor: pointer;
+      max-width: 90%;
+    }
+    .ayah-balloon.pop {
+      transform: scale(0);
+      opacity: 0;
+      pointer-events: none;
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+    #backBtn {
+      margin-top: 20px;
+      display: inline-block;
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 18px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎈 اختر سورة من جزء تبارك 🎈</h1>
+  <div id="container"></div>
+
+  <audio id="popSound" src="sounds/pop.mp3"></audio>
+  <audio id="doneSound" src="sounds/done.mp3"></audio>
+
+  <script>
+    const container = document.getElementById('container');
+    const popSound = document.getElementById('popSound');
+    const doneSound = document.getElementById('doneSound');
+    let surahs = {};
+
+    async function loadSurahs() {
+      const res = await fetch('tabarak.txt');
+      const text = await res.text();
+      const rawSurahs = text.split(/(?:^|\n)سورة\s+/).filter(s => s.trim());
+      rawSurahs.forEach(entry => {
+        const lines = entry.trim().split('\n');
+        const nameLine = lines[0].trim().split(' ')[0];
+        const content = lines.slice(1).join('\n').trim();
+        const ayat = content.split(/\(\d+\)/).map(a => a.trim()).filter(a => a.length > 0);
+        surahs[nameLine] = ayat;
+      });
+      showSurahBalloons();
+    }
+
+    function showSurahBalloons() {
+      document.querySelector('h1').innerText = '🎈 اختر سورة من جزء تبارك 🎈';
+      container.innerHTML = '';
+      for (let name in surahs) {
+        const div = document.createElement('div');
+        div.className = 'balloon';
+        div.innerText = `سورة ${name}`;
+        div.onclick = () => showSurah(name);
+        container.appendChild(div);
+      }
+    }
+
+    function showSurah(name) {
+      container.innerHTML = '';
+      document.querySelector('h1').innerText = `🎈 سورة ${name} - فرقعة الآيات 🎈`;
+      const ayat = surahs[name];
+      let index = 0;
+
+      function showNextAyah() {
+        if (index >= ayat.length) {
+          doneSound.play();
+          container.innerHTML = "<h3>🎉 انتهيت من السورة، أحسنت! 🎉</h3>";
+          const back = document.createElement('div');
+          back.id = 'backBtn';
+          back.innerText = '🔙 العودة إلى القائمة';
+          back.onclick = showSurahBalloons;
+          container.appendChild(back);
+          return;
+        }
+        const balloon = document.createElement('div');
+        balloon.className = 'ayah-balloon';
+        balloon.innerText = `${ayat[index]} (${index + 1})`;
+        balloon.onclick = () => {
+          popSound.play();
+          balloon.classList.add('pop');
+          setTimeout(() => {
+            container.innerHTML = '';
+            index++;
+            showNextAyah();
+          }, 300);
+        };
+        container.appendChild(balloon);
+      }
+
+      showNextAyah();
+    }
+
+    loadSurahs();
+  </script>
+
+</body>
+</html>
