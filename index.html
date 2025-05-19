@@ -98,9 +98,19 @@
     let surahs = {};
     let ayahMode = false;
 
+    // منع الخروج أو الرجوع أثناء السورة
     window.onbeforeunload = function () {
       if (ayahMode) {
         return 'هل أنت متأكد أنك تريد الخروج؟ لم تنته بعد من السورة.';
+      }
+    };
+
+    window.onpopstate = function (event) {
+      if (ayahMode) {
+        alert("يرجى إكمال السورة أولاً 🌟");
+        history.pushState(null, '', '');
+      } else {
+        showSurahBalloons();
       }
     };
 
@@ -133,6 +143,7 @@
 
     function showSurah(name) {
       ayahMode = true;
+      history.pushState(null, '', '');
       container.innerHTML = '';
       document.querySelector('h1').innerText = `🎈 سورة ${name} - فرقعة الآيات 🎈`;
       const ayat = surahs[name];
