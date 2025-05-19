@@ -75,7 +75,7 @@
   </style>
 </head>
 <body>
-  <h1>🎈 اختر سورة من جزء تبارك 🎈</h1>
+  <h1>🎈 🌟اختر سورة من جزء تبارك 🎈</h1>
   <div id="container"></div>
 
   <audio id="popSound" preload="auto">
@@ -98,16 +98,23 @@
     let surahs = {};
     let ayahMode = false;
 
-    // ✅ منع الرجوع تمامًا عند قراءة السورة
+    // 🔒 منع الخروج أو الرجوع تمامًا
     function blockBackNavigation() {
       history.pushState(null, '', location.href);
     }
 
     window.addEventListener('popstate', function (e) {
       if (ayahMode) {
-        alert('لا يمكنك الرجوع قبل إكمال السورة 🌟🌟');
         blockBackNavigation();
       } else {
+        e.preventDefault();
+        blockBackNavigation();
+      }
+    });
+
+    // منع زر الرجوع عبر اختصارات الأجهزة المحمولة
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && ayahMode) {
         blockBackNavigation();
       }
     });
