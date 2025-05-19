@@ -78,8 +78,12 @@
   <h1>🎈 اختر سورة من جزء تبارك 🎈</h1>
   <div id="container"></div>
 
-  <audio id="popSound" src="sounds/pop.mp3"></audio>
-  <audio id="doneSound" src="sounds/done.mp3"></audio>
+  <audio id="popSound" preload="auto">
+    <source src="sounds/pop.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="doneSound" preload="auto">
+    <source src="sounds/done.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -137,7 +141,8 @@
       function showNextAyah() {
         if (index >= ayat.length) {
           ayahMode = false;
-          doneSound.play();
+          doneSound.pause(); doneSound.currentTime = 0;
+          doneSound.play().catch(err => console.error("Done sound error:", err));
           container.innerHTML = "<h3>🎉 انتهيت من السورة، أحسنت! 🎉</h3>";
           const back = document.createElement('div');
           back.id = 'backBtn';
@@ -157,15 +162,16 @@
         setTimeout(() => {
           balloon.style.pointerEvents = 'auto';
           balloon.onclick = () => {
-            popSound.play();
+            popSound.pause(); popSound.currentTime = 0;
+            popSound.play().catch(err => console.error("Pop sound error:", err));
             balloon.classList.add('pop');
             setTimeout(() => {
               container.innerHTML = '';
               index++;
-              setTimeout(showNextAyah, 200); // added 200ms delay after popping
+              showNextAyah();
             }, 300);
           };
-        }, 0);
+        }, 2000);
       }
 
       showNextAyah();
