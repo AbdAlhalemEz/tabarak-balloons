@@ -162,7 +162,7 @@
             setTimeout(() => {
               container.innerHTML = '';
               index++;
-              showNextAyah();
+              setTimeout(showNextAyah, 200); // added 200ms delay after popping
             }, 300);
           };
         }, 0);
