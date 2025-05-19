@@ -98,21 +98,21 @@
     let surahs = {};
     let ayahMode = false;
 
-    // منع الخروج أو الرجوع أثناء السورة
-    window.onbeforeunload = function () {
-      if (ayahMode) {
-        return 'هل أنت متأكد أنك تريد الخروج؟ لم تنته بعد من السورة.';
-      }
-    };
+    // ✅ منع الرجوع تمامًا عند قراءة السورة
+    function blockBackNavigation() {
+      history.pushState(null, '', location.href);
+    }
 
-    window.onpopstate = function (event) {
+    window.addEventListener('popstate', function (e) {
       if (ayahMode) {
-        alert("يرجى إكمال السورة أولاً 🌟");
-        history.pushState(null, '', '');
+        alert('لا يمكنك الرجوع قبل إكمال السورة 🌟');
+        blockBackNavigation();
       } else {
-        showSurahBalloons();
+        blockBackNavigation();
       }
-    };
+    });
+
+    blockBackNavigation();
 
     async function loadSurahs() {
       const res = await fetch('tabarak.txt');
@@ -143,7 +143,7 @@
 
     function showSurah(name) {
       ayahMode = true;
-      history.pushState(null, '', '');
+      blockBackNavigation();
       container.innerHTML = '';
       document.querySelector('h1').innerText = `🎈 سورة ${name} - فرقعة الآيات 🎈`;
       const ayat = surahs[name];
